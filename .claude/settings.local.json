@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm info *)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --yes)",
+      "Read(//c/Code/**)",
+      "Bash(npx create-next-app@latest volunteersl-temp --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --yes)",
+      "Bash(Copy-Item -Recurse -Force \"volunteersl-temp\\\\*\" \"VolunteerSL\\\\\"; Copy-Item -Recurse -Force \"volunteersl-temp\\\\.git\" \"VolunteerSL\\\\\" -ErrorAction SilentlyContinue)",
+      "Bash(Copy-Item -Force \"volunteersl-temp\\\\.gitignore\" \"VolunteerSL\\\\\"; Copy-Item -Force \"volunteersl-temp\\\\.eslintrc.json\" \"VolunteerSL\\\\\")",
+      "Bash(Remove-Item -Recurse -Force \"volunteersl-temp\")",
+      "Bash(Write-Host \"Done\")",
+      "Bash(cp -r /c/Code/volunteersl-temp/. /c/Code/VolunteerSL/)",
+      "Bash(rm -rf /c/Code/volunteersl-temp)",
+      "Bash(npm install *)",
+      "Bash(npx shadcn@latest add card dialog form input label select table badge toast calendar textarea separator badge tabs avatar dropdown-menu --yes)",
+      "Bash(npx shadcn@latest add sonner --yes)",
+      "Bash(npx shadcn@latest add table badge calendar textarea separator tabs avatar dropdown-menu --yes)"
+    ]
+  }
+}
