@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { setRequestLocale } from "next-intl/server"
 import { getTranslations } from "next-intl/server"
 import { Navbar } from "@/components/layout/Navbar"
@@ -57,8 +59,8 @@ export default async function AvailabilityPage({
           </div>
 
           <AvailabilityCalendar
-            mealTimes={mealTimes}
-            initialSlots={slots.map((s) => ({
+            mealTimes={mealTimes as { id: string; name: string }[]}
+            initialSlots={(slots as { donationDate: Date; mealTimeId: string }[]).map((s) => ({
               ...s,
               donationDate: new Date(s.donationDate),
             }))}

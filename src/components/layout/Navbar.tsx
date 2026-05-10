@@ -1,24 +1,24 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { useTranslations } from "next-intl"
 import { Link, usePathname } from "@/i18n/navigation"
 import { LocaleSwitcher } from "./LocaleSwitcher"
-import { Button } from "@/components/ui/button"
-import { useSession, signOut } from "next-auth/react"
 import { cn } from "@/lib/utils"
+
+const NavbarAuthSection = dynamic(
+  () => import("./NavbarAuthSection").then((m) => m.NavbarAuthSection),
+  { ssr: false, loading: () => <div className="h-8 w-20 animate-pulse rounded bg-gray-200" /> }
+)
 
 export function Navbar() {
   const t = useTranslations("nav")
   const pathname = usePathname()
-  const { data: session } = useSession()
-  const role = (session?.user as { role?: string } | undefined)?.role
 
-  const navLinks = [
-    { href: "/", label: t("home") },
-    { href: "/availability", label: t("availability") },
-    { href: "/donate", label: t("donate") },
-    ...(session ? [{ href: "/dashboard", label: t("dashboard") }] : []),
-    ...(role === "ADMIN" ? [{ href: "/admin", label: t("admin") }] : []),
+  const publicLinks = [
+    { href: "/" as const, label: t("home") },
+    { href: "/availability" as const, label: t("availability") },
+    { href: "/donate" as const, label: t("donate") },
   ]
 
   return (
@@ -32,15 +32,13 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          {navLinks.map((link) => (
+          {publicLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
                 "text-sm font-medium transition-colors hover:text-emerald-600",
-                pathname === link.href
-                  ? "text-emerald-700"
-                  : "text-gray-600"
+                pathname === link.href ? "text-emerald-700" : "text-gray-600"
               )}
             >
               {link.label}
@@ -50,21 +48,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <LocaleSwitcher />
-          {session ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => signOut({ callbackUrl: "/en" })}
-            >
-              {t("logout")}
-            </Button>
-          ) : (
-            <Link href="/auth/signin">
-              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
-                {t("login")}
-              </Button>
-            </Link>
-          )}
+          <NavbarAuthSection />
         </div>
       </div>
     </header>

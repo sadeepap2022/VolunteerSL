@@ -1,10 +1,11 @@
-import { NextIntlClientProvider, hasLocale } from "next-intl"
+import { hasLocale } from "next-intl"
 import { getMessages, setRequestLocale } from "next-intl/server"
 import { notFound } from "next/navigation"
 import { Geist } from "next/font/google"
 import { Noto_Sans_Sinhala, Noto_Sans_Tamil } from "next/font/google"
 import { routing } from "@/i18n/routing"
 import { Toaster } from "@/components/ui/sonner"
+import { Providers } from "@/components/layout/Providers"
 import type { Metadata } from "next"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" })
@@ -51,10 +52,10 @@ export default async function LocaleLayout({
       className={`${geist.variable} ${notoSinhala.variable} ${notoTamil.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <NextIntlClientProvider messages={messages}>
+        <Providers locale={locale} messages={messages as Record<string, unknown>}>
           {children}
           <Toaster />
-        </NextIntlClientProvider>
+        </Providers>
       </body>
     </html>
   )

@@ -26,7 +26,8 @@ export function HospitalSelector({ hospitals, selectedId }: Props) {
   const router = useRouter()
   const pathname = usePathname()
 
-  function handleChange(value: string) {
+  function handleChange(value: string | null) {
+    if (!value) return
     router.push(`${pathname}?hospitalId=${value}`)
   }
 

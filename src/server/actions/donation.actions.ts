@@ -95,7 +95,7 @@ export async function getAvailabilityForDate(
     select: { mealTimeId: true },
   })
 
-  return donations.map((d) => d.mealTimeId)
+  return donations.map((d: { mealTimeId: string }) => d.mealTimeId)
 }
 
 export async function getUserDonations(userId: string) {

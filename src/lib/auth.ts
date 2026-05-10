@@ -6,7 +6,6 @@ async function provisionUser(params: {
   sub: string
   name: string
   email: string
-  phone?: string
 }) {
   return prisma.user.upsert({
     where: { id: params.sub },
@@ -20,20 +19,25 @@ async function provisionUser(params: {
   })
 }
 
+const issuer = process.env.ASGARDEO_ISSUER ?? ""
+
 export const authConfig: NextAuthConfig = {
   providers: [
     {
       id: "asgardeo",
       name: "WSO2 Asgardeo",
       type: "oidc",
-      issuer: process.env.ASGARDEO_ISSUER,
+      // Use manual endpoints to avoid eager OIDC discovery at module load
+      issuer,
+      authorization: {
+        url: `${issuer}/authorize`,
+        params: { scope: "openid profile email phone", response_type: "code" },
+      },
+      token: `${issuer}/token`,
+      userinfo: `${issuer}/userinfo`,
+      jwks_endpoint: `${issuer}/jwks`,
       clientId: process.env.ASGARDEO_CLIENT_ID,
       clientSecret: process.env.ASGARDEO_CLIENT_SECRET,
-      authorization: {
-        params: {
-          scope: "openid profile email phone",
-        },
-      },
       profile(profile) {
         return {
           id: profile.sub,
@@ -46,7 +50,7 @@ export const authConfig: NextAuthConfig = {
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, profile }) {
       if (!profile?.sub || !user.email) return false
       try {
         const dbUser = await provisionUser({
@@ -54,25 +58,24 @@ export const authConfig: NextAuthConfig = {
           name: user.name ?? "Unknown",
           email: user.email,
         })
-        // Attach role from DB onto user so jwt callback can read it
         ;(user as { role?: string }).role = dbUser.role
         return true
       } catch {
         return false
       }
     },
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user, profile }) {
       if (user) {
         token.sub = (profile?.sub as string) ?? user.id
-        token.role = (user as { role?: string }).role ?? "DONOR"
+        const rawRole = (user as { role?: string }).role
+        token.role = (rawRole === "ADMIN" ? "ADMIN" : "DONOR") as "DONOR" | "ADMIN"
       }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub!
-        ;(session.user as { role?: string }).role =
-          (token.role as string) ?? "DONOR"
+        session.user.role = token.role
       }
       return session
     },

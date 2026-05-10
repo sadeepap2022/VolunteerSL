@@ -1,5 +1,4 @@
-import { setRequestLocale } from "next-intl/server"
-import { useTranslations } from "next-intl"
+import { setRequestLocale, getTranslations } from "next-intl/server"
 import { Link } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/layout/Navbar"
@@ -10,9 +9,22 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
 
-function HomeContent() {
-  const t = useTranslations("home")
-  const tNav = useTranslations("nav")
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  setRequestLocale(locale)
+
+  const t = await getTranslations("home")
+  const tNav = await getTranslations("nav")
+
+  const steps = [
+    { title: t("step1Title"), desc: t("step1Desc"), icon: "🗓️" },
+    { title: t("step2Title"), desc: t("step2Desc"), icon: "💳" },
+    { title: t("step3Title"), desc: t("step3Desc"), icon: "✅" },
+  ]
 
   return (
     <>
@@ -40,11 +52,7 @@ function HomeContent() {
               {t("howItWorks")}
             </h2>
             <div className="grid gap-8 sm:grid-cols-3">
-              {[
-                { title: t("step1Title"), desc: t("step1Desc"), icon: "🗓️" },
-                { title: t("step2Title"), desc: t("step2Desc"), icon: "💳" },
-                { title: t("step3Title"), desc: t("step3Desc"), icon: "✅" },
-              ].map((step, i) => (
+              {steps.map((step, i) => (
                 <div
                   key={i}
                   className="rounded-xl border border-emerald-100 bg-white p-6 shadow-sm"
@@ -63,14 +71,4 @@ function HomeContent() {
       <Footer />
     </>
   )
-}
-
-export default async function HomePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
-  const { locale } = await params
-  setRequestLocale(locale)
-  return <HomeContent />
 }

@@ -70,7 +70,7 @@ export function StepSelectDetails({ hospitals, mealTimes, onComplete }: Props) {
         {/* Hospital */}
         <div className="space-y-2">
           <label className="text-sm font-medium">{t("selectHospital")}</label>
-          <Select value={hospitalId} onValueChange={setHospitalId}>
+          <Select value={hospitalId} onValueChange={(v) => v && setHospitalId(v)}>
             <SelectTrigger>
               <SelectValue placeholder={t("selectHospitalPlaceholder")} />
             </SelectTrigger>
@@ -105,7 +105,7 @@ export function StepSelectDetails({ hospitals, mealTimes, onComplete }: Props) {
             ) : availableMealTimes.length === 0 ? (
               <p className="text-sm text-amber-600">{t("slotBooked")}</p>
             ) : (
-              <Select value={mealTimeId} onValueChange={setMealTimeId}>
+              <Select value={mealTimeId} onValueChange={(v) => v && setMealTimeId(v)}>
                 <SelectTrigger>
                   <SelectValue placeholder={t("selectMealTimePlaceholder")} />
                 </SelectTrigger>
