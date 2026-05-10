@@ -1,13 +1,103 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  DONOR
+  ADMIN
+}
+
+enum DonationStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+}
+
+enum PaymentMethod {
+  OFFLINE
+  ONLINE
+  CASH_MANUAL
+}
+
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  FAILED
+}
+
+model User {
+  id        String     @id
+  name      String     /// @encrypted
+  phone     String?    /// @encrypted
+  email     String     /// @encrypted
+  role      Role       @default(DONOR)
+  createdAt DateTime   @default(now())
+  donations Donation[]
+  auditLogs AuditLog[] @relation("ActorLogs")
+}
+
+model Hospital {
+  id        String     @id @default(cuid())
+  name      String
+  location  String
+  isActive  Boolean    @default(true)
+  donations Donation[]
+}
+
+model MealTime {
+  id         String     @id @default(cuid())
+  name       String
+  timeString String
+  isActive   Boolean    @default(true)
+  donations  Donation[]
+}
+
+model Donation {
+  id                String         @id @default(cuid())
+  referenceNumber   String         @unique
+  userId            String?
+  hospitalId        String
+  mealTimeId        String
+  donationDate      DateTime       @db.Date
+  status            DonationStatus @default(PENDING)
+  isManualEntry     Boolean        @default(false)
+  donorNameOverride String?        /// @encrypted
+  createdAt         DateTime       @default(now())
+
+  user     User?     @relation(fields: [userId], references: [id])
+  hospital Hospital  @relation(fields: [hospitalId], references: [id])
+  mealTime MealTime  @relation(fields: [mealTimeId], references: [id])
+  payment  Payment?
+
+  @@unique([hospitalId, mealTimeId, donationDate])
+}
+
+model Payment {
+  id               String        @id @default(cuid())
+  donationId       String        @unique
+  method           PaymentMethod
+  amount           Decimal       @db.Decimal(10, 2)
+  receiptUrl       String?
+  paymentStatus    PaymentStatus @default(PENDING)
+  payhereReference String?
+  createdAt        DateTime      @default(now())
+
+  donation Donation @relation(fields: [donationId], references: [id])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  action       String
+  actorId      String
+  targetEntity String
+  targetId     String
+  details      Json     @default("{}")
+  createdAt    DateTime @default(now())
+
+  actor User @relation("ActorLogs", fields: [actorId], references: [id])
 }
