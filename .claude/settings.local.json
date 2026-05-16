@@ -14,7 +14,10 @@
       "Bash(npm install *)",
       "Bash(npx shadcn@latest add card dialog form input label select table badge toast calendar textarea separator badge tabs avatar dropdown-menu --yes)",
       "Bash(npx shadcn@latest add sonner --yes)",
-      "Bash(npx shadcn@latest add table badge calendar textarea separator tabs avatar dropdown-menu --yes)"
+      "Bash(npx shadcn@latest add table badge calendar textarea separator tabs avatar dropdown-menu --yes)",
+      "Bash(npx prisma *)",
+      "Bash(node -e ' *)",
+      "Bash(npx next *)"
     ]
   }
 }
