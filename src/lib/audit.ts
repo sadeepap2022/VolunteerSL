@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 
 const PII_KEYS = [
@@ -35,7 +36,7 @@ export async function createAuditLog(params: {
       actorId: params.actorId,
       targetEntity: params.targetEntity,
       targetId: params.targetId,
-      details: params.details ? scrubPII(params.details) : {},
+      details: (params.details ? scrubPII(params.details) : {}) as Prisma.InputJsonValue,
     },
   })
 }
