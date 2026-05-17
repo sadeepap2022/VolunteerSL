@@ -78,6 +78,8 @@ export function StepSelectDetails({ hospitals, mealTimes, onComplete, initialVal
   }
 
   const canSubmit = !!hospitalId && !!date && !!mealTimeId
+  const selectedHospital = hospitals.find((h) => h.id === hospitalId)
+  const selectedMealTime = mealTimes.find((m) => m.id === mealTimeId)
 
   return (
     <Card>
@@ -90,7 +92,9 @@ export function StepSelectDetails({ hospitals, mealTimes, onComplete, initialVal
           <label className="text-sm font-medium">{t("selectHospital")}</label>
           <Select value={hospitalId} onValueChange={(v) => v && setHospitalId(v)}>
             <SelectTrigger>
-              <SelectValue placeholder={t("selectHospitalPlaceholder")} />
+              <SelectValue placeholder={t("selectHospitalPlaceholder")}>
+                {selectedHospital ? `${selectedHospital.name} — ${selectedHospital.location}` : null}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {hospitals.map((h) => (
@@ -125,7 +129,9 @@ export function StepSelectDetails({ hospitals, mealTimes, onComplete, initialVal
             ) : (
               <Select value={mealTimeId} onValueChange={(v) => v && setMealTimeId(v)}>
                 <SelectTrigger>
-                  <SelectValue placeholder={t("selectMealTimePlaceholder")} />
+                  <SelectValue placeholder={t("selectMealTimePlaceholder")}>
+                    {selectedMealTime ? `${selectedMealTime.name} (${selectedMealTime.timeString})` : null}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {availableMealTimes.map((mt) => (
