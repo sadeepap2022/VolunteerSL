@@ -29,7 +29,7 @@ export default function SignInPage() {
       setError("Invalid email or password.")
       setLoading(false)
     } else {
-      router.push(`/${locale}`)
+      router.push(`/${locale}/admin`)
       router.refresh()
     }
   }
