@@ -31,6 +31,8 @@ export function HospitalSelector({ hospitals, selectedId }: Props) {
     router.push(`${pathname}?hospitalId=${value}`)
   }
 
+  const selected = hospitals.find((h) => h.id === selectedId)
+
   return (
     <div className="flex items-center gap-3">
       <label className="text-sm font-medium text-gray-700">
@@ -38,7 +40,9 @@ export function HospitalSelector({ hospitals, selectedId }: Props) {
       </label>
       <Select value={selectedId} onValueChange={handleChange}>
         <SelectTrigger className="w-72">
-          <SelectValue placeholder={t("selectHospital")} />
+          <SelectValue placeholder={t("selectHospital")}>
+            {selected ? `${selected.name} — ${selected.location}` : null}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {hospitals.map((h) => (

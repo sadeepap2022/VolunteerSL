@@ -44,6 +44,15 @@ export default async function AvailabilityPage({
     ? await getAvailabilityForMonth(selectedHospitalId, year, monthNum)
     : []
 
+  async function fetchMonthSlots(y: number, m: number) {
+    "use server"
+    const data = await getAvailabilityForMonth(selectedHospitalId, y, m)
+    return (data as { donationDate: Date; mealTimeId: string }[]).map((s) => ({
+      donationDate: new Date(s.donationDate),
+      mealTimeId: s.mealTimeId,
+    }))
+  }
+
   return (
     <>
       <Navbar />
@@ -59,11 +68,14 @@ export default async function AvailabilityPage({
           </div>
 
           <AvailabilityCalendar
+            key={selectedHospitalId}
+            hospitalId={selectedHospitalId}
             mealTimes={mealTimes as { id: string; name: string }[]}
             initialSlots={(slots as { donationDate: Date; mealTimeId: string }[]).map((s) => ({
-              ...s,
               donationDate: new Date(s.donationDate),
+              mealTimeId: s.mealTimeId,
             }))}
+            onMonthChange={fetchMonthSlots}
           />
         </div>
       </main>

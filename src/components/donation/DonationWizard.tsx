@@ -21,12 +21,19 @@ export interface CompletedDonation {
   referenceNumber: string
 }
 
+interface InitialValues {
+  hospitalId?: string
+  mealTimeId?: string
+  date?: string
+}
+
 interface Props {
   hospitals: { id: string; name: string; location: string }[]
   mealTimes: { id: string; name: string; timeString: string }[]
+  initialValues?: InitialValues
 }
 
-export function DonationWizard({ hospitals, mealTimes }: Props) {
+export function DonationWizard({ hospitals, mealTimes, initialValues }: Props) {
   const [step, setStep] = useState<WizardStep>("details")
   const [selections, setSelections] = useState<DonationSelections | null>(null)
   const [donation, setDonation] = useState<CompletedDonation | null>(null)
@@ -56,6 +63,7 @@ export function DonationWizard({ hospitals, mealTimes }: Props) {
             hospitals={hospitals}
             mealTimes={mealTimes}
             onComplete={handleDetailsComplete}
+            initialValues={initialValues}
           />
         )}
         {step === "confirm" && selections && (

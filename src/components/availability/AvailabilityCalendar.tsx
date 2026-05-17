@@ -28,6 +28,7 @@ interface BookedSlot {
 }
 
 interface Props {
+  hospitalId: string
   mealTimes: MealTime[]
   initialSlots: BookedSlot[]
   onMonthChange?: (year: number, month: number) => Promise<BookedSlot[]>
@@ -36,6 +37,7 @@ interface Props {
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 export function AvailabilityCalendar({
+  hospitalId,
   mealTimes,
   initialSlots,
   onMonthChange,
@@ -141,13 +143,21 @@ export function AvailabilityCalendar({
               {format(day, "d")}
             </span>
             <div className="flex flex-col gap-1">
-              {mealTimes.map((mt) => (
-                <MealSlotBadge
-                  key={mt.id}
-                  mealName={mt.name}
-                  isBooked={isBooked(day, mt.id)}
-                />
-              ))}
+              {mealTimes.map((mt) => {
+                const booked = isBooked(day, mt.id)
+                const dateStr = format(day, "yyyy-MM-dd")
+                const href = booked
+                  ? undefined
+                  : `/donate?hospitalId=${hospitalId}&mealTimeId=${mt.id}&date=${dateStr}`
+                return (
+                  <MealSlotBadge
+                    key={mt.id}
+                    mealName={mt.name}
+                    isBooked={booked}
+                    href={href}
+                  />
+                )
+              })}
             </div>
           </div>
         ))}

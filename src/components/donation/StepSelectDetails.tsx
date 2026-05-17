@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useTranslations } from "next-intl"
-import { format } from "date-fns"
+import { format, parseISO } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,19 +16,31 @@ import {
 import { getAvailabilityForDate } from "@/server/actions/donation.actions"
 import type { DonationSelections } from "./DonationWizard"
 
+interface InitialValues {
+  hospitalId?: string
+  mealTimeId?: string
+  date?: string
+}
+
 interface Props {
   hospitals: { id: string; name: string; location: string }[]
   mealTimes: { id: string; name: string; timeString: string }[]
   onComplete: (data: DonationSelections) => void
+  initialValues?: InitialValues
 }
 
-export function StepSelectDetails({ hospitals, mealTimes, onComplete }: Props) {
+export function StepSelectDetails({ hospitals, mealTimes, onComplete, initialValues }: Props) {
   const t = useTranslations("donate")
-  const [hospitalId, setHospitalId] = useState("")
-  const [date, setDate] = useState<Date | undefined>()
+  const [hospitalId, setHospitalId] = useState(initialValues?.hospitalId ?? "")
+  const [date, setDate] = useState<Date | undefined>(
+    initialValues?.date ? parseISO(initialValues.date) : undefined
+  )
   const [mealTimeId, setMealTimeId] = useState("")
   const [bookedMealTimeIds, setBookedMealTimeIds] = useState<string[]>([])
   const [loadingAvailability, setLoadingAvailability] = useState(false)
+
+  // Holds the pre-fill mealTimeId; cleared after first successful availability fetch
+  const pendingMealTimeId = useRef(initialValues?.mealTimeId)
 
   useEffect(() => {
     if (!hospitalId || !date) {
@@ -38,7 +50,13 @@ export function StepSelectDetails({ hospitals, mealTimes, onComplete }: Props) {
     }
     setLoadingAvailability(true)
     getAvailabilityForDate(hospitalId, format(date, "yyyy-MM-dd"))
-      .then(setBookedMealTimeIds)
+      .then((booked) => {
+        setBookedMealTimeIds(booked)
+        if (pendingMealTimeId.current && !booked.includes(pendingMealTimeId.current)) {
+          setMealTimeId(pendingMealTimeId.current)
+        }
+        pendingMealTimeId.current = undefined
+      })
       .finally(() => setLoadingAvailability(false))
   }, [hospitalId, date])
 
